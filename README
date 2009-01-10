@@ -1,0 +1,7 @@
+This project tries to reduce hibernate startup time:
+  - by serializing the hibernate configuration,
+  - by loading persisters lazily as suggested in
+  http://opensource.atlassian.com/projects/hibernate/browse/HHH-1258.
+
+Spring 2.5.6
+Hibernate 3.2.6.ga
