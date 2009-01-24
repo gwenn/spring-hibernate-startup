@@ -1,3 +1,5 @@
+OVERVIEW
+
 This project tries to reduce hibernate startup time:
   - by serializing the hibernate configuration,
   - by loading persisters lazily as suggested in
@@ -5,3 +7,18 @@ This project tries to reduce hibernate startup time:
 
 Spring 2.5.6
 Hibernate 3.2.6.ga
+
+LIMITATIONS
+
+The current logic used to serialize the hibernate configuration is based on the structure and lifecycle of a maven project:
+  - serialized configuration is saved in 'target/classes' directory when the session factory bean is instantiated for the first time (for example in the test phase). If all tests passed, the 'target/classes' content is packed and installed/deployed in your repository, the serialized configuration within.
+  - if the file containing the serialized configuration is found in your classpath, all new changes made to your hbm files will be ignored...
+
+The lazily loading of persisters stuff has not been tested in a multi-threaded environment. May be the following methods should be hardened to make the hack thread-safe:
+ - SessionFactoryImpl#replaceLazyProxy(String, EntityPersister)
+ - SessionFactoryImpl#replaceLazyProxy(String, CollectionPersister)
+
+USAGE
+
+* To serialize the hibernate configuration, just replace the 'LocalSessionFactoryBean' by the 'CustomSessionFactoryBean' in your spring context configuration file.
+* To do lazy loading of persisters, just make sure that the patched SessionFactoryImpl is before the original one in your classpth.
