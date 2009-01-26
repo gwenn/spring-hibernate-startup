@@ -23,7 +23,11 @@ public class CustomSessionFactoryBean extends LocalSessionFactoryBean {
    private static final String TARGET_DIRECTORY = "./target/classes";
    private static final String SERIALIZED_CONFIGURATION_FILE_NAME = "Configuration.bin";
    private static final ThreadLocal<DataSource> configTimeDataSourceHolder = new ThreadLocal<DataSource>();
+
    private transient boolean serialize;
+   private boolean cacheableConfiguration = true;
+   private String cacheableConfigurationDirectory = TARGET_DIRECTORY;
+   private String cacheableConfigurationFileName = SERIALIZED_CONFIGURATION_FILE_NAME;
 
    public static DataSource getConfigTimeDataSource() {
       return configTimeDataSourceHolder.get();
@@ -31,7 +35,10 @@ public class CustomSessionFactoryBean extends LocalSessionFactoryBean {
 
    @Override
    protected SessionFactory buildSessionFactory() throws Exception {
-      InputStream inputStream = getClass().getClassLoader().getResourceAsStream(SERIALIZED_CONFIGURATION_FILE_NAME);
+      if (!cacheableConfiguration) {
+         return super.buildSessionFactory();
+      }
+      InputStream inputStream = getClass().getClassLoader().getResourceAsStream(cacheableConfigurationFileName);
       if (null != inputStream) {
          LOG.info("Loading serialized Hibernate configuration...");
          DataSource dataSource = getDataSource();
@@ -40,6 +47,8 @@ public class CustomSessionFactoryBean extends LocalSessionFactoryBean {
          }
          try {
             Configuration config = (Configuration) SerializationUtils.deserialize(inputStream);
+            // hibernate properties may have been modified dynamically...
+            configuration.addProperties(getHibernateProperties());
             // LocalSessionFactoryBean.configTimeDataSourceHolder is not accessible...
             config.setProperty(Environment.CONNECTION_PROVIDER, CustomSourceConnectionProvider.class.getName());
             return newSessionFactory(config);
@@ -63,7 +72,7 @@ public class CustomSessionFactoryBean extends LocalSessionFactoryBean {
    protected void postProcessConfiguration(Configuration config) throws HibernateException {
       if (serialize) {
          LOG.info("Serializing Hibernate configuration...");
-         final File serializedConfigurationFile = new File(TARGET_DIRECTORY, SERIALIZED_CONFIGURATION_FILE_NAME);
+         final File serializedConfigurationFile = new File(cacheableConfigurationDirectory, cacheableConfigurationFileName);
          OutputStream outputStream = null;
          try {
             outputStream = FileUtils.openOutputStream(serializedConfigurationFile);
@@ -74,5 +83,17 @@ public class CustomSessionFactoryBean extends LocalSessionFactoryBean {
             IOUtils.closeQuietly(outputStream);
          }
       }
+   }
+
+   public void setCacheableConfiguration(boolean cacheableConfiguration) {
+      this.cacheableConfiguration = cacheableConfiguration;
+   }
+
+   public void setCacheableConfigurationDirectory(String cacheableConfigurationDirectory) {
+      this.cacheableConfigurationDirectory = cacheableConfigurationDirectory;
+   }
+
+   public void setCacheableConfigurationFileName() {
+      this.cacheableConfigurationFileName = cacheableConfigurationFileName;
    }
 }
