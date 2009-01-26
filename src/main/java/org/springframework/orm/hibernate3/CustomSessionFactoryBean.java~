@@ -48,7 +48,7 @@ public class CustomSessionFactoryBean extends LocalSessionFactoryBean {
          try {
             Configuration config = (Configuration) SerializationUtils.deserialize(inputStream);
             // hibernate properties may have been modified dynamically...
-            config.addProperties(getHibernateProperties());
+            configuration.addProperties(getHibernateProperties());
             // LocalSessionFactoryBean.configTimeDataSourceHolder is not accessible...
             config.setProperty(Environment.CONNECTION_PROVIDER, CustomSourceConnectionProvider.class.getName());
             return newSessionFactory(config);
