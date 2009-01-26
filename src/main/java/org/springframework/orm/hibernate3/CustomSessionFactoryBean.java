@@ -93,7 +93,7 @@ public class CustomSessionFactoryBean extends LocalSessionFactoryBean {
       this.cacheableConfigurationDirectory = cacheableConfigurationDirectory;
    }
 
-   public void setCacheableConfigurationFileName() {
+   public void setCacheableConfigurationFileName(String cacheableConfigurationFileName) {
       this.cacheableConfigurationFileName = cacheableConfigurationFileName;
    }
 }
