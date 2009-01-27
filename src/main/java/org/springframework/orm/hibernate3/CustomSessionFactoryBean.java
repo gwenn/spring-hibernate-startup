@@ -50,7 +50,7 @@ public class CustomSessionFactoryBean extends LocalSessionFactoryBean {
             // hibernate properties may have been modified dynamically...
             config.addProperties(getHibernateProperties());
             // LocalSessionFactoryBean.configTimeDataSourceHolder is not accessible...
-            config.setProperty(Environment.CONNECTION_PROVIDER, CustomSourceConnectionProvider.class.getName());
+            config.setProperty(Environment.CONNECTION_PROVIDER, CustomDataSourceConnectionProvider.class.getName());
             return newSessionFactory(config);
          } finally {
             IOUtils.closeQuietly(inputStream);

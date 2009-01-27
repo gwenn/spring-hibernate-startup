@@ -14,7 +14,7 @@ import org.springframework.orm.hibernate3.LocalDataSourceConnectionProvider;
 /**
  * Adaptation of {@link LocalDataSourceConnectionProvider}.
  */
-public class CustomSourceConnectionProvider implements ConnectionProvider {
+public class CustomDataSourceConnectionProvider implements ConnectionProvider {
    private DataSource dataSource;
 
    public void configure(Properties props) throws HibernateException {
